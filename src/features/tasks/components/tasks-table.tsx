@@ -12,8 +12,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { get } from '@/lib/api'
+import { TasksResponse } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -27,18 +30,36 @@ import { priorities, statuses } from '../data/data'
 import { type Task } from '../data/schema'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { tasksColumns as columns } from './tasks-columns'
+import { useTasks } from './tasks-provider'
 
 const route = getRouteApi('/_authenticated/tasks/')
 
-type DataTableProps = {
-  data: Task[]
-}
-
-export function TasksTable({ data }: DataTableProps) {
+export function TasksTable() {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const { tasks, setTasks } = useTasks()
+  const data = tasks
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true)
+
+      const response = await get<TasksResponse>('/tasks')
+
+      setTasks(response.data.tasks)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Local state management for table (uncomment to use local-only state, not synced with URL)
   // const [globalFilter, onGlobalFilterChange] = useState('')
@@ -82,7 +103,7 @@ export function TasksTable({ data }: DataTableProps) {
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     globalFilterFn: (row, _columnId, filterValue) => {
-      const id = String(row.getValue('id')).toLowerCase()
+      const id = String(row.getValue('_id')).toLowerCase()
       const title = String(row.getValue('title')).toLowerCase()
       const searchValue = String(filterValue).toLowerCase()
 
@@ -104,7 +125,15 @@ export function TasksTable({ data }: DataTableProps) {
     ensurePageInRange(pageCount)
   }, [pageCount, ensurePageInRange])
 
-  return (
+  return loading ? (
+    <div className='space-y-3'>
+      <Skeleton className='h-12 w-full' />
+      <Skeleton className='h-12 w-full' />
+      <Skeleton className='h-12 w-full' />
+      <Skeleton className='h-12 w-full' />
+      <Skeleton className='h-12 w-full' />
+    </div>
+  ) : (
     <div
       className={cn(
         'max-sm:has-[div[role="toolbar"]]:mb-16', // Add margin bottom to the table on mobile when the toolbar is visible

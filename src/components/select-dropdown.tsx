@@ -18,6 +18,7 @@ type SelectDropdownProps = {
   disabled?: boolean
   className?: string
   isControlled?: boolean
+  value?: string
 }
 
 export function SelectDropdown({
@@ -29,12 +30,13 @@ export function SelectDropdown({
   disabled,
   className = '',
   isControlled = false,
+  value,
 }: SelectDropdownProps) {
-  const defaultState = isControlled
-    ? { value: defaultValue, onValueChange }
+  const selectProps = isControlled
+    ? { value, onValueChange }
     : { defaultValue, onValueChange }
   return (
-    <Select {...defaultState}>
+    <Select {...selectProps}>
       <FormControl>
         <SelectTrigger disabled={disabled} className={cn(className)}>
           <SelectValue placeholder={placeholder ?? 'Select'} />

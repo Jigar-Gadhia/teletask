@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 
 export function handleServerError(error: unknown) {
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
     console.log(error)
   }
 
@@ -19,10 +18,14 @@ export function handleServerError(error: unknown) {
   }
 
   if (error instanceof AxiosError) {
-    const title = error.response?.data?.title
-    if (typeof title === 'string' && title.length > 0) {
-      errMsg = title
-    }
+    const data = error.response?.data
+
+    errMsg =
+      data?.message?.message ||
+      data?.message ||
+      data?.title ||
+      error.message ||
+      errMsg
   }
 
   toast.error(errMsg)

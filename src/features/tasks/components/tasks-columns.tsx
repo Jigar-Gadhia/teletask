@@ -31,34 +31,62 @@ export const tasksColumns: ColumnDef<Task>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  {
-    accessorKey: 'id',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Task' />
-    ),
-    cell: ({ row }) => <div className='w-20'>{row.getValue('id')}</div>,
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   accessorKey: '_id',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title='Task ID' />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <div className='w-32 truncate'>{row.getValue('_id')}</div>
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: 'title',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Title' />
     ),
     meta: {
-      className: 'ps-1 max-w-0 w-2/3',
+      className: 'ps-1 max-w-0 w-1/3',
       tdClassName: 'ps-4',
     },
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label)
-
       return (
         <div className='flex space-x-2'>
-          {label && <Badge variant='outline'>{label.label}</Badge>}
           <span className='truncate font-medium'>{row.getValue('title')}</span>
         </div>
       )
     },
+  },
+  {
+    accessorKey: 'instructions',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Instructions' />
+    ),
+    meta: {
+      className: 'ps-1 max-w-0 w-2/3',
+      tdClassName: 'ps-4',
+    },
+    cell: ({ row }) => {
+      return (
+        <div className='flex space-x-2'>
+          <span className='truncate font-medium'>
+            {row.getValue('instructions')}
+          </span>
+        </div>
+      )
+    },
+  },
+  {
+    accessorFn: (row) => row.workerId.name,
+    id: 'worker',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Worker' />
+    ),
+    cell: ({ row }) => (
+      <div className='font-medium'>{row.original.workerId.name}</div>
+    ),
   },
   {
     accessorKey: 'status',

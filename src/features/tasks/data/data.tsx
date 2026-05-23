@@ -8,6 +8,7 @@ import {
   Timer,
   HelpCircle,
   CircleOff,
+  Send,
 } from 'lucide-react'
 
 export const labels = [
@@ -27,28 +28,28 @@ export const labels = [
 
 export const statuses = [
   {
-    label: 'Backlog',
-    value: 'backlog' as const,
-    icon: HelpCircle,
+    label: 'Sent',
+    value: 'sent' as const,
+    icon: Send,
   },
   {
-    label: 'Todo',
-    value: 'todo' as const,
+    label: 'Accepted',
+    value: 'accepted' as const,
     icon: Circle,
   },
   {
     label: 'In Progress',
-    value: 'in progress' as const,
+    value: 'in_progress' as const,
     icon: Timer,
   },
   {
-    label: 'Done',
-    value: 'done' as const,
+    label: 'Completed',
+    value: 'completed' as const,
     icon: CheckCircle,
   },
   {
-    label: 'Canceled',
-    value: 'canceled' as const,
+    label: 'Rejected',
+    value: 'rejected' as const,
     icon: CircleOff,
   },
 ]

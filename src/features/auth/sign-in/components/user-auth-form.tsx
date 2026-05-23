@@ -7,6 +7,8 @@ import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
 import { IconFacebook, IconGithub } from '@/assets/brand-icons'
 import { useAuthStore } from '@/stores/auth-store'
+import { post } from '@/lib/api'
+import { LoginResponse } from '@/lib/types'
 import { sleep, cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -51,34 +53,46 @@ export function UserAuthForm({
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      setIsLoading(true)
 
-    toast.promise(sleep(2000), {
-      loading: 'Signing in...',
-      success: () => {
-        setIsLoading(false)
+      const response = await post<LoginResponse>('/auth/login', data)
 
-        // Mock successful authentication with expiry computed at success time
-        const mockUser = {
-          accountNo: 'ACC001',
-          email: data.email,
-          role: ['user'],
-          exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
-        }
+      const { token, tenant } = response.data
 
-        // Set user and access token
-        auth.setUser(mockUser)
-        auth.setAccessToken('mock-access-token')
+      const initials = tenant.companyName
+        .split(' ')
+        .filter(Boolean)
+        .map((word) => word[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
 
-        // Redirect to the stored location or default to dashboard
-        const targetPath = redirectTo || '/'
-        navigate({ to: targetPath, replace: true })
+      auth.setUser({
+        accountNo: tenant._id,
+        email: tenant.email,
+        role: ['tenant'],
+        exp: Date.now() + 24 * 60 * 60 * 1000,
+        name: tenant.companyName,
+        initials,
+      })
 
-        return `Welcome back, ${data.email}!`
-      },
-      error: 'Error',
-    })
+      auth.setAccessToken(token)
+
+      toast.success(`Welcome back, ${tenant.companyName}!`)
+
+      const targetPath = redirectTo || '/'
+
+      navigate({
+        to: targetPath,
+        replace: true,
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
